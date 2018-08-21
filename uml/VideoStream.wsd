@@ -1,0 +1,7 @@
+@startuml
+participant VideoStream
+participant HttpRequestHandler
+VideoStream->HttpRequestHandler : StartVideoFeed();
+note right of HttpRequestHandler : Continuous Http Packets send to video stream listening socket. 
+VideoStream->HttpRequestHandler : CloseVideoStreamSocket();
+@enduml

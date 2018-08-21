@@ -1,0 +1,15 @@
+@startuml
+participant Terminal
+participant Dashboard
+participant GcodeHandler
+participant HttpRequestHandler
+actor octoprint
+
+Terminal->Dashboard: SendG28();
+Dashboard -> GcodeHandler : SendGcodeCommand(G28);
+GcodeHandler-> HttpRequestHandler: SendHttpRequest(HttpRequest);
+HttpRequestHandler->octoprint : SendRequest(request);
+octoprint->HttpRequestHandler : SendGCode(GcodeResponse);
+HttpRequestHandler->GcodeHandler : SendGCodePacket(GcodeResponse);
+GcodeHandler->Terminal: WriteGcodeToTerminal(GCodeResponse);
+@enduml

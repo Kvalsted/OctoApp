@@ -1,0 +1,12 @@
+@startuml
+== UI Active Scene Change ==
+participant Dashboard
+participant SceneManager
+participant SubmenuOverlay
+note left of Dashboard : open submenu menu
+Dashboard->SceneManager : ViewSubMenuOverlay();
+SceneManager->SceneManager : OpenSubMenu(1);
+note Right of SubmenuOverlay : Open Video Stream Menu
+SubmenuOverlay->SceneManager : OpenVideoStreamOverlay();
+==Active Scene Changes To Video Stream==
+@enduml
