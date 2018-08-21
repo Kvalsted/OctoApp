@@ -1,0 +1,15 @@
+@startuml
+==Change bed or hot end temperature==
+actor dashboard
+participant TemperatureWidget
+participant GcodeHandler
+participant HttpRequestHandler
+dashboard->TemperatureWidget : SetTemperature(70);
+TemperatureWidget->GcodeHandler : SendGcode(M140 S0);
+note right of GcodeHandler: Set bed temperature
+GcodeHandler->HttpRequestHandler : SendHttpPut(Gcode command);
+note right of GcodeHandler: Send Gcode response
+HttpRequestHandler-->GcodeHandler : SendGcodeResponse();
+GcodeHandler-->TemperatureWidget : SendGcodeResponse();
+TemperatureWidget->TemperatureWidget : SetTargetTemperature(); 
+@enduml
