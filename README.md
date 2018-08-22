@@ -2,6 +2,8 @@
 
 # Octoprint Android App
 
+![LGTM](https://raw.githubusercontent.com/guysoft/OctoPi/devel/media/OctoPi.png)
+
 **Need to have:**
 
 - **Set bed and hot end temperature**
