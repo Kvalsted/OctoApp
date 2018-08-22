@@ -1,8 +1,11 @@
 
-
+![LGTM](https://cdn-images-1.medium.com/max/1217/1*Mfno8ZsfyDYFkjpRH1MNSw.png)
 # Octoprint Android App
 
 ![LGTM](https://raw.githubusercontent.com/guysoft/OctoPi/devel/media/OctoPi.png)
+
+
+
 
 **Need to have:**
 
