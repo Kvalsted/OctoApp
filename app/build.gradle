@@ -14,7 +14,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         buildToolsVersion "26.0.0"
-        applicationId "com.example.kfyr.octo2"
+        applicationId "com.example.octo.printstudio"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1

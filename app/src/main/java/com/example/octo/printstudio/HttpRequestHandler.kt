@@ -25,15 +25,15 @@ class HttpRequestHandler(var context: Context, var rview: RecyclerView)
             override fun onResponse(call: Call?, response: Response?)
             {
                 val body = response?.body()?.string()
-                println(body)
+                //println(body)
 
 
                 val gson = GsonBuilder().create()
 
                 val files = gson.fromJson(body, Files::class.java)
 
-                rview.adapter = MainAdapter(files)
 
+                rview.adapter = MainAdapter(files)
 
             }
         })

@@ -16,9 +16,12 @@ import com.example.octo.printstudio.HttpRequestHandler
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.fragment_timelapses.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener{
     lateinit var timelapse_fragment : timelapses
+    lateinit var tinfo: timelapse_info
+    var top_frag : Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -43,6 +46,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         rview.layoutManager = LinearLayoutManager(this)
         val handler = HttpRequestHandler(this, rview)
         handler.get("http://80.210.72.202:63500/api/files")
+
+        //Instantiate fragments
+
+
+
+        tinfo = timelapse_info()
+        top_frag = R.id.container
+
     }
 
     override fun onBackPressed() {
@@ -80,12 +91,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_timelapses -> {
 
+
                 supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.container, timelapse_fragment)
-                        .addToBackStack(timelapse_fragment.toString())
+                        .replace(top_frag, timelapse_fragment)
+                        .addToBackStack("timelapse")
                         .setTransitionStyle(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .commit()
+
             }
             R.id.nav_slideshow -> {
 
@@ -106,6 +119,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onFragmentInteraction(uri: Uri) {
+    }
+
+
+    fun gettinfo(): timelapse_info {
+        return tinfo
     }
 
 
