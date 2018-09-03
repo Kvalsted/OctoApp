@@ -7,6 +7,11 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ScrollView
+import android.widget.TextView
+import kotlinx.android.synthetic.main.fragment_command_line_interface.view.*
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -40,8 +45,24 @@ class CommandLineInterface : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_command_line_interface, container, false)
+        val v = inflater.inflate(R.layout.fragment_command_line_interface, container, false)
+
+
+        for (i in 1..1000) {
+            var text: TextView = TextView(activity)
+            text.text = "hej"
+            text.textSize = 20.0F
+            v.scrolly.ll.addView(text)
+        }
+
+        v.scrolly.post(Runnable { v.scrolly.fullScroll(View.FOCUS_DOWN) })
+
+
+
+        return v
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {

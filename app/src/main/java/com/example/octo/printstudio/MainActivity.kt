@@ -13,14 +13,18 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import com.example.octo.printstudio.HttpRequestHandler
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.fragment_timelapses.*
+import okhttp3.*
+import java.io.IOException
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener{
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener, CommandLineInterface.OnFragmentInteractionListener, WebSocketListener{
     lateinit var timelapse_fragment : timelapses
     lateinit var tinfo: timelapse_info
+    lateinit var cmd: CommandLineInterface
     var top_frag : Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,14 +48,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
         rview.setBackgroundColor(Color.LTGRAY)
         rview.layoutManager = LinearLayoutManager(this)
-        val handler = HttpRequestHandler(this, rview)
-        handler.get("http://80.210.72.202:63500/api/files")
+
+        var url : String = "http://80.210.72.202:63500/api/files"
+
+
+
+        val request = okhttp3.Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback
+        {
+            override fun onFailure(call: Call?, e: IOException?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onResponse(call: Call?, response: Response?)
+            {
+                val body = response?.body()?.string()
+                //println(body)
+
+
+                val gson = GsonBuilder().create()
+
+                val files = gson.fromJson(body, Files::class.java)
+
+                runOnUiThread {
+
+                rview.adapter = MainAdapter(files)}
+
+            }
+
+
+        })
+
 
         //Instantiate fragments
 
 
 
         tinfo = timelapse_info()
+        cmd = CommandLineInterface()
         top_frag = R.id.container
 
     }
@@ -94,13 +130,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 supportFragmentManager
                         .beginTransaction()
-                        .replace(top_frag, timelapse_fragment)
+                        .replace(R.id.container, timelapse_fragment)
                         .addToBackStack("timelapse")
                         .setTransitionStyle(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .commit()
 
             }
-            R.id.nav_slideshow -> {
+            R.id.nav_cmd -> {
+
+                supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.container, cmd)
+                        .addToBackStack("cmd")
+                        .setTransitionStyle(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .commit()
 
             }
             R.id.nav_manage -> {

@@ -13,9 +13,9 @@
             android:icon="@drawable/ic_video_library_black_24dp"
             android:title="Timelapses" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_cmd"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:title="CMD" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
