@@ -9,9 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
+import com.google.gson.GsonBuilder
+import kotlinx.android.synthetic.main.fragment_command_line_interface.*
 import kotlinx.android.synthetic.main.fragment_command_line_interface.view.*
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import okhttp3.*
+import okio.ByteString
+import org.jetbrains.anko.coroutines.experimental.bg
+import java.io.IOException
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -34,6 +40,57 @@ class CommandLineInterface : Fragment() {
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
+    private var client: OkHttpClient? = null
+
+    private inner class EchoWebSocketListener : WebSocketListener() {
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            webSocket.send("Hello, it's SSaurel !")
+            webSocket.send("What's up ?")
+            webSocket.send(ByteString.decodeHex("deadbeef"))
+
+            webSocket.close(1000, "Goodbye !")
+        }
+
+        override fun onMessage(webSocket: WebSocket?, text: String?) {
+            //println("Receiving : " + text!!)
+
+
+                if (text!!.startsWith("{\"current\":")) {
+                    println(text.toString())
+                    println("hej")
+                    val gson = GsonBuilder().create()
+                    val files = gson.fromJson(text.toString(), Current::class.java)
+                    println(files.current.logs[0])
+                    activity.runOnUiThread {
+
+                        var text: TextView = TextView(activity)
+                        text.text = files.current.logs[0]
+                        text.textSize = 20.0F
+                        activity.scrolly.ll.addView(text)
+
+
+                        activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
+
+
+                    }
+                }
+
+
+
+
+        }
+
+        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
+            //println("Receiving bytes : " + bytes.hex())
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
+            webSocket.close(1000, null)
+            //println("Closing : $code / $reason")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -48,14 +105,25 @@ class CommandLineInterface : Fragment() {
         val v = inflater.inflate(R.layout.fragment_command_line_interface, container, false)
 
 
-        for (i in 1..1000) {
-            var text: TextView = TextView(activity)
-            text.text = "hej"
-            text.textSize = 20.0F
-            v.scrolly.ll.addView(text)
-        }
 
-        v.scrolly.post(Runnable { v.scrolly.fullScroll(View.FOCUS_DOWN) })
+
+
+        client = OkHttpClient()
+        async(UI)
+        {
+            bg {
+                val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
+                val listener = EchoWebSocketListener()
+
+                while(true)
+                {
+                    val ws = client!!.newWebSocket(request2, listener)
+
+
+                }
+            }
+
+        }
 
 
 
@@ -119,3 +187,5 @@ class CommandLineInterface : Fragment() {
                 }
     }
 }
+class Current(val current: Logs)
+class Logs(val logs: List<String>)

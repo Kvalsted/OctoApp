@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -13,19 +14,59 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import com.example.octo.printstudio.HttpRequestHandler
-import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.fragment_timelapses.*
 import okhttp3.*
 import java.io.IOException
+import okhttp3.WebSocket
+import okio.ByteString
+import okhttp3.WebSocketListener
+import okhttp3.OkHttpClient
+import android.widget.TextView
+import android.system.Os.shutdown
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.coroutines.experimental.bg
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener, CommandLineInterface.OnFragmentInteractionListener, WebSocketListener{
+
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener, CommandLineInterface.OnFragmentInteractionListener{
     lateinit var timelapse_fragment : timelapses
     lateinit var tinfo: timelapse_info
     lateinit var cmd: CommandLineInterface
     var top_frag : Int = 0
+
+    private val client: OkHttpClient? = null
+
+    private inner class EchoWebSocketListener : WebSocketListener() {
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            webSocket.send("Hello, it's SSaurel !")
+            webSocket.send("What's up ?")
+            webSocket.send(ByteString.decodeHex("deadbeef"))
+            webSocket.close(1000, "Goodbye !")
+        }
+
+        override fun onMessage(webSocket: WebSocket?, text: String?) {
+            println("Receiving : " + text!!)
+        }
+
+        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
+            println("Receiving bytes : " + bytes.hex())
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
+            webSocket.close(1000, null)
+            println("Closing : $code / $reason")
+        }
+    }
+
+
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,9 +94,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-        val request = okhttp3.Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
+        val request = Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
 
-        val client = OkHttpClient()
+        var client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback
         {
             override fun onFailure(call: Call?, e: IOException?) {
@@ -65,7 +106,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call?, response: Response?)
             {
                 val body = response?.body()?.string()
-                //println(body)
+                println(body)
 
 
                 val gson = GsonBuilder().create()
@@ -89,6 +130,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         tinfo = timelapse_info()
         cmd = CommandLineInterface()
         top_frag = R.id.container
+        client = OkHttpClient()
+
 
     }
 
@@ -132,7 +175,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .beginTransaction()
                         .replace(R.id.container, timelapse_fragment)
                         .addToBackStack("timelapse")
-                        .setTransitionStyle(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .commit()
 
             }
@@ -142,7 +185,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .beginTransaction()
                         .replace(R.id.container, cmd)
                         .addToBackStack("cmd")
-                        .setTransitionStyle(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .commit()
 
             }
