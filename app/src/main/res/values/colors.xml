@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="fragdrop">#555c6b</color>
+    <color name="ltgray">#dee2e8</color>
 </resources>

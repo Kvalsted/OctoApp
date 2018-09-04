@@ -45,7 +45,7 @@ class timelapses : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
 
-               get("http://80.210.72.202:63500/api/timelapse")
+
 
         }
     }
@@ -54,6 +54,7 @@ class timelapses : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.fragment_timelapses, container, false)
+        get("http://80.210.72.202:63500/api/timelapse")
 
 
 
