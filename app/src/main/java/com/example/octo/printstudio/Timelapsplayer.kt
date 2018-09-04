@@ -1,5 +1,6 @@
 package com.example.octo.printstudio
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.SurfaceView
@@ -17,10 +18,12 @@ class Timelapsplayer : AppCompatActivity() {
         this.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-
+        var url: String = intent.getStringExtra("url")
+        println("url")
+        println (url)
         setContentView(R.layout.activity_timelapsplayer)
         mSurface = surfaceView
-        var etUrl= "http://80.210.72.202:63500/downloads/timelapse/rods_20180714222819.mpg"
+        val etUrl= "http://80.210.72.202:63500$url"
         videoController= VideoController(this)
         videoController!!.mSurface=mSurface
 
