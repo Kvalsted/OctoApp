@@ -104,6 +104,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.nav_manage -> {
+                val intent = Intent(this, Timelapsplayer::class.java)
+                startActivity(intent)
+                // Handle the camera action
+
 
             }
             R.id.nav_share -> {
