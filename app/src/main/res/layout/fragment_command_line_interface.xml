@@ -5,43 +5,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fragdrop"
-    tools:context=".CommandLineInterface">
+    tools:context=".CommandLineInterface"
+    tools:layout_editor_absoluteY="81dp">
 
     <!-- TODO: Update blank fragment layout -->
+
+    <EditText
+        android:id="@+id/textin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:layout_marginTop="12dp"
+        android:imeOptions="actionDone"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toStartOf="@+id/send"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrolly" />
+
 
     <ScrollView
         android:id="@+id/scrolly"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/textin"
+        app:layout_constraintBottom_toTopOf="@+id/send"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/ll"
-            android:background="@color/ltgray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/ltgray"
             android:orientation="vertical" />
 
     </ScrollView>
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/textin"
-        android:layout_width="0dp"
-        android:layout_height="62dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+    <Button
+        android:id="@+id/send"
+        android:layout_width="66dp"
+        android:layout_height="63dp"
+        android:layout_marginBottom="9dp"
+        android:text="Send"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrolly">
+        app:layout_constraintStart_toEndOf="@+id/textin"
+        app:layout_constraintTop_toBottomOf="@+id/scrolly" />
 
-        <android.support.design.widget.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint" />
-    </android.support.design.widget.TextInputLayout>
 </android.support.constraint.ConstraintLayout>

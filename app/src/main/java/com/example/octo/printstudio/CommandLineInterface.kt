@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +21,13 @@ import okhttp3.*
 import okio.ByteString
 import org.jetbrains.anko.coroutines.experimental.bg
 import java.io.IOException
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView.OnEditorActionListener
+import kotlinx.android.synthetic.main.content_main.*
+import java.security.Key
+import okhttp3.FormBody
+
+
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -35,43 +45,61 @@ private const val ARG_PARAM2 = "param2"
  *
  */
 class CommandLineInterface : Fragment() {
+
+
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
     private var client: OkHttpClient? = null
+    var run: Boolean = true
+    override fun onDestroyView() {
+        run = false
+        super.onDestroyView()
+
+
+    }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            webSocket.send("Hello, it's SSaurel !")
+            /*webSocket.send("Hello, it's SSaurel !")
             webSocket.send("What's up ?")
             webSocket.send(ByteString.decodeHex("deadbeef"))
 
             webSocket.close(1000, "Goodbye !")
+        */
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
             //println("Receiving : " + text!!)
 
 
-                if (text!!.startsWith("{\"current\":")) {
+                if (text!!.startsWith("{\"current\":") and run) {
+
                     println(text.toString())
-                    println("hej")
+                    //println("hej")
                     val gson = GsonBuilder().create()
                     val files = gson.fromJson(text.toString(), Current::class.java)
                     println(files.current.logs[0])
                     activity.runOnUiThread {
 
-                        var text: TextView = TextView(activity)
-                        text.text = files.current.logs[0]
-                        text.textSize = 20.0F
-                        activity.scrolly.ll.addView(text)
+                        for(res: String in files.current.logs) {
+                            try {
+                                var text: TextView = TextView(activity)
+                                text.text = res
+                                text.textSize = 20.0F
+                                activity.scrolly.ll.addView(text)
 
+                                activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
+                            }
+                            catch (e: IOException)
+                            {
 
-                        activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
+                            }
 
+                        }
 
                     }
                 }
@@ -102,9 +130,37 @@ class CommandLineInterface : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
+        run = true
         val v = inflater.inflate(R.layout.fragment_command_line_interface, container, false)
 
+        //Send GCode command
+        v.send.setOnClickListener {
+        async(UI) {
 
+            bg {
+
+
+                    val formBodyBuilder = FormBody.Builder()
+
+                    formBodyBuilder.add("command", v.textin.text.toString().toUpperCase())
+                    var formBody = formBodyBuilder.build()
+                    var url: String = "http://80.210.72.202:63500/api/printer/command"
+                    val request = Request.Builder().post(formBody).addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
+
+                    var client = OkHttpClient()
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call?, e: IOException?) {
+                            var tf: TextView = TextView(activity)
+                            tf.text = "Unknown command"
+                        }
+
+                        override fun onResponse(call: Call?, response: Response?) {
+                        }
+
+                    })
+                }
+            }
+        }
 
 
 
@@ -112,10 +168,20 @@ class CommandLineInterface : Fragment() {
         async(UI)
         {
             bg {
+                textin.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+
+                    println("got some key")
+                    /*if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                        //Perform Code
+                        println("got enter boi")
+                        return@OnKeyListener true
+                    }*/
+                    false
+                })
                 val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
                 val listener = EchoWebSocketListener()
 
-                while(true)
+                while(run)
                 {
                     val ws = client!!.newWebSocket(request2, listener)
 
@@ -123,7 +189,11 @@ class CommandLineInterface : Fragment() {
                 }
             }
 
+
+
         }
+
+
 
 
 

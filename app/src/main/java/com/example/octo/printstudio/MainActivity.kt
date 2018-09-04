@@ -187,7 +187,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .addToBackStack("cmd")
                         .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .commit()
-
             }
             R.id.nav_manage -> {
 
@@ -206,6 +205,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onFragmentInteraction(uri: Uri) {
     }
+
+
 
 
     fun gettinfo(): timelapse_info {
