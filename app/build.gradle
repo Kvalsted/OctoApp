@@ -43,7 +43,9 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:r2.5.4'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation 'com.google.code.gson:gson:2.8.0'
+    implementation 'de.mrmaffen:libvlc-android:2.1.12@aar'
     implementation "org.jetbrains.anko:anko:0.10.1"
+
 
 
 
