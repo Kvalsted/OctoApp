@@ -82,24 +82,25 @@ class CommandLineInterface : Fragment() {
                     //println("hej")
                     val gson = GsonBuilder().create()
                     val files = gson.fromJson(text.toString(), Current::class.java)
-                    println(files.current.logs[0])
+                    println(files.current.messages[0])
                     activity.runOnUiThread {
 
-                        for(res: String in files.current.logs) {
+
                             try {
                                 var text: TextView = TextView(activity)
-                                text.text = res
+                                text.text = files.current.messages[0]
                                 text.textSize = 20.0F
                                 activity.scrolly.ll.addView(text)
 
                                 activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
+                                return@runOnUiThread
                             }
                             catch (e: IOException)
                             {
 
                             }
 
-                        }
+
 
                     }
                 }
@@ -135,28 +136,38 @@ class CommandLineInterface : Fragment() {
 
         //Send GCode command
         v.send.setOnClickListener {
-        async(UI) {
+            var client = OkHttpClient()
+            var inc_cmd = v.textin.text
+            val url: String = "http://80.210.72.202:63500/api/printer/command"
+            async(UI) {
 
-            bg {
+                bg {
+
+                    val json = """
+                {
+                    "command":"${inc_cmd.toString().toUpperCase()}"
+                }
+                """.trimIndent()
+
+                    val body = RequestBody.create(MediaType.parse("application/json"), json)
+                    val request = Request.Builder()
+                            .url(url)
+                            .addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502")
+                            .addHeader("Content-Type", "application/json")
+                            .post(body)
+                            .build()
 
 
-                    val formBodyBuilder = FormBody.Builder()
-
-                    formBodyBuilder.add("command", v.textin.text.toString().toUpperCase())
-                    var formBody = formBodyBuilder.build()
-                    var url: String = "http://80.210.72.202:63500/api/printer/command"
-                    val request = Request.Builder().post(formBody).addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
-
-                    var client = OkHttpClient()
                     client.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call?, e: IOException?) {
-                            var tf: TextView = TextView(activity)
-                            tf.text = "Unknown command"
+                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                         }
 
                         override fun onResponse(call: Call?, response: Response?) {
-                        }
 
+                            println("Response: ${response}")
+                            println("JSON: ${json}")
+                        }
                     })
                 }
             }
@@ -184,6 +195,7 @@ class CommandLineInterface : Fragment() {
                 while(run)
                 {
                     val ws = client!!.newWebSocket(request2, listener)
+                    Thread.sleep(2000)
 
 
                 }
@@ -258,4 +270,4 @@ class CommandLineInterface : Fragment() {
     }
 }
 class Current(val current: Logs)
-class Logs(val logs: List<String>)
+class Logs(val messages: List<String>)
