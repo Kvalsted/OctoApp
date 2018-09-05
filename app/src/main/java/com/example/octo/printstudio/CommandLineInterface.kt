@@ -24,6 +24,7 @@ import java.io.IOException
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView.OnEditorActionListener
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.experimental.CommonPool
 import java.security.Key
 import okhttp3.FormBody
 
@@ -53,6 +54,7 @@ class CommandLineInterface : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
 
     private var client: OkHttpClient? = null
+    private var thread_running = false
     var run: Boolean = true
     override fun onDestroyView() {
         run = false
@@ -82,27 +84,23 @@ class CommandLineInterface : Fragment() {
                     //println("hej")
                     val gson = GsonBuilder().create()
                     val files = gson.fromJson(text.toString(), Current::class.java)
-                    println(files.current.messages[0])
-                    activity.runOnUiThread {
 
-
-                            try {
-                                var text: TextView = TextView(activity)
-                                text.text = files.current.messages[0]
-                                text.textSize = 20.0F
-                                activity.scrolly.ll.addView(text)
-
-                                activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
-                                return@runOnUiThread
-                            }
-                            catch (e: IOException)
-                            {
-
+                    async(CommonPool)
+                    {
+                        bg{
+                            activity.runOnUiThread {
+                                for (t in files.current.logs) {
+                                    val tv: TextView = TextView(activity)
+                                    tv.text = t
+                                    activity.scrolly.ll.addView(tv)
+                                    activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
+                                }
                             }
 
-
-
+                        }
                     }
+                    /*
+                */
                 }
 
 
@@ -115,8 +113,12 @@ class CommandLineInterface : Fragment() {
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
-            webSocket.close(1000, null)
-            //println("Closing : $code / $reason")
+            //webSocket.close(1000, null)
+            println("Closing : $code / $reason")
+        }
+
+        override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
+            super.onFailure(webSocket, t, response)
         }
     }
 
@@ -174,40 +176,16 @@ class CommandLineInterface : Fragment() {
         }
 
 
+        if(thread_running == false) {
+            client = OkHttpClient()
+            val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
+            val listener = EchoWebSocketListener()
 
-        client = OkHttpClient()
-        async(UI)
-        {
-            bg {
-                textin.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
-
-                    println("got some key")
-                    /*if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                        //Perform Code
-                        println("got enter boi")
-                        return@OnKeyListener true
-                    }*/
-                    false
-                })
-                val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
-                val listener = EchoWebSocketListener()
-
-                while(run)
-                {
-                    val ws = client!!.newWebSocket(request2, listener)
-                    Thread.sleep(2000)
-
-
-                }
-            }
-
-
-
+            client!!.retryOnConnectionFailure()
+            val ws = client!!.newWebSocket(request2, listener)
+            client!!.dispatcher().executorService().shutdown();
+            thread_running = true
         }
-
-
-
-
 
         return v
     }
@@ -231,6 +209,12 @@ class CommandLineInterface : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("Terminating")
+        thread_running = false
     }
 
     /**
@@ -270,4 +254,4 @@ class CommandLineInterface : Fragment() {
     }
 }
 class Current(val current: Logs)
-class Logs(val messages: List<String>)
+class Logs(val logs: List<String>)
