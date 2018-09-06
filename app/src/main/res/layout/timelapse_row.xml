@@ -8,30 +8,32 @@
     tools:layout_editor_absoluteY="81dp">
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/timelapse_textview"
         android:layout_width="0dp"
-        android:layout_height="19dp"
+        android:layout_height="37dp"
         android:layout_marginBottom="7dp"
-        android:layout_marginEnd="145dp"
+        android:layout_marginEnd="22dp"
         android:layout_marginStart="40dp"
         android:layout_marginTop="7dp"
+        android:singleLine="true"
         android:text="Example.gcode"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton4"
+        app:layout_constraintEnd_toStartOf="@+id/tlbt"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/imageButton4"
+        android:id="@+id/tlbt"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginBottom="5dp"
-        android:layout_marginEnd="3dp"
+        android:layout_marginEnd="17dp"
         android:layout_marginTop="5dp"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintStart_toEndOf="@+id/tvtl"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_video_library_black_24dp" />
 

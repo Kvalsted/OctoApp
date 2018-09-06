@@ -105,6 +105,8 @@ class CommandLineInterface : Fragment() {
         override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
             //super.onFailure(webSocket, t, response)
             println("failed to open socket")
+            println(t)
+            webSocket!!.close(1000, "something happened")
         }
     }
 
@@ -173,22 +175,19 @@ class CommandLineInterface : Fragment() {
 
         if(thread_running == false) {
             println("Creating listener")
-            async(UI){
 
-            bg {
-                activity.runOnUiThread {
+
                     client = OkHttpClient()
-                    val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
+                    val request2 = Request.Builder().url("ws://80.210.72.202:63500/sockjs/websocket").build()
                     val listener = EchoWebSocketListener()
 
-                    client!!.retryOnConnectionFailure()
+                    //client!!.retryOnConnectionFailure()
                     val ws = client!!.newWebSocket(request2, listener)
-                    //client!!.dispatcher().executorService().shutdown();
+                    client!!.dispatcher().executorService().shutdown();
                     thread_running = true
                 }
-            }
-            }
-        }
+
+
 
         return v
     }

@@ -2,11 +2,13 @@ package com.example.octo.printstudio
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -31,6 +33,7 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.coroutines.experimental.bg
+import java.lang.IllegalStateException
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, timelapses.OnFragmentInteractionListener ,timelapse_info.OnFragmentInteractionListener, CommandLineInterface.OnFragmentInteractionListener{
@@ -129,6 +132,72 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         client = OkHttpClient()
 
 
+        stop.setOnClickListener {
+
+            var client = OkHttpClient()
+            val url : String = "http://80.210.72.202:63500/api/job"
+            val json = """
+                {
+                    "command":"cancel"
+                }
+                """.trimIndent()
+
+            val body = RequestBody.create(MediaType.parse("application/json"), json)
+            val request = Request.Builder()
+                    .url(url)
+                    .addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502")
+                    .addHeader("Content-Type", "application/json")
+                    .post(body)
+                    .build()
+
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call?, e: IOException?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onResponse(call: Call?, response: Response?) {
+
+                    println("Response: ${response}")
+                    println("JSON: ${json}")
+                }
+            })
+
+        }
+
+        pause_btn.setOnClickListener {
+
+            var client = OkHttpClient()
+            val url : String = "http://80.210.72.202:63500/api/job"
+            val json = """
+                {
+                    "command":"pause",
+                    "action": "pause"
+                }
+                """.trimIndent()
+
+            val body = RequestBody.create(MediaType.parse("application/json"), json)
+            val request = Request.Builder()
+                    .url(url)
+                    .addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502")
+                    .addHeader("Content-Type", "application/json")
+                    .post(body)
+                    .build()
+
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call?, e: IOException?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onResponse(call: Call?, response: Response?) {
+
+                    println("Response: ${response}")
+                    println("JSON: ${json}")
+                }
+            })
+
+        }
         async(CommonPool)
         {
             bg {
@@ -233,23 +302,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 println("lol")
             }
 
-            override fun onResponse(call: Call?, response: Response?)
-            {
+            override fun onResponse(call: Call?, response: Response?) {
                 val body = response?.body()?.string()
 
 
                 val gson = GsonBuilder().create()
 
-                val files = gson.fromJson(body, Info::class.java)
-                println("hej")
-                println(files.state.text)
-                println(files.temperature.bed.actual)
+                try {
+                    val files = gson.fromJson(body, Info::class.java)
+                    println("hej")
+                    println(files.state.text)
+                    println(files.temperature.bed.actual)
 
-                async(CommonPool)
-                {
-                    state.text = files.state.text
-                    bt.text = files.temperature.bed.actual.toString()
-                    nt.text = files.temperature.tool0.actual.toString()
+                    async(CommonPool)
+                    {
+                        state.text = files.state.text
+                        bt.text = files.temperature.bed.actual.toString().slice(IntRange(0,3))
+                        nt.text = files.temperature.tool0.actual.toString().slice(IntRange(0,3))
+
+                        if(files.state.text == "Paused")
+                        {
+
+                            val draw = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_arrow_black_24dp, null)
+                            if(pause_btn.drawable != draw) {
+                                pause_btn.setImageDrawable(draw)
+                            }
+                        }
+
+                    }
+                }
+
+                catch(e: IllegalStateException) {
 
                 }
             }

@@ -39,7 +39,7 @@
             android:id="@+id/ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:layout_gravity="center_horizontal|bottom"
             android:background="@color/fragdrop"
             android:orientation="vertical">
 

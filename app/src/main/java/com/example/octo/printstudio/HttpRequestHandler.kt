@@ -19,4 +19,6 @@ class HttpRequestHandler(var context: Context, var rview: RecyclerView)
 
 class Files(val files : List<File>)
 
-class File(val date: Int, val name: String, val origin: String, val type: String)
+class File(val date: Int, val name: String, val origin: String, val type: String, val refs: Refs)
+
+class Refs(val download: String, val resource: String)
