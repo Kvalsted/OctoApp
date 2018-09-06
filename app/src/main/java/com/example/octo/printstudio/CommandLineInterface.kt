@@ -76,7 +76,7 @@ class CommandLineInterface : Fragment() {
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
             //println("Receiving : " + text!!)
-
+                println("got message")
 
                 if (text!!.startsWith("{\"current\":") and run) {
 

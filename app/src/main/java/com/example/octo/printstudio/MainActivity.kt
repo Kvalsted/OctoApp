@@ -27,6 +27,7 @@ import okhttp3.OkHttpClient
 import android.widget.TextView
 import android.system.Os.shutdown
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.coroutines.experimental.bg
@@ -100,7 +101,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         client.newCall(request).enqueue(object : Callback
         {
             override fun onFailure(call: Call?, e: IOException?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
             override fun onResponse(call: Call?, response: Response?)
@@ -131,6 +131,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         cmd = CommandLineInterface()
         top_frag = R.id.container
         client = OkHttpClient()
+
+
+        async(CommonPool)
+        {
+            bg {
+                while (true) {
+
+                    getprinterstate()
+                    Thread.sleep(2000)
+
+                }
+
+            }
+        }
+        bt.text = "hej"
+        nt.text = "25"
 
 
     }
@@ -206,6 +222,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    fun getprinterstate()
+    {
+
+        var url : String = "http://80.210.72.202:63500/api/printer"
+
+
+
+        val request = Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
+        var client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback
+        {
+            override fun onFailure(call: Call?, e: IOException?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onResponse(call: Call?, response: Response?)
+            {
+                val body = response?.body()?.string()
+
+
+                val gson = GsonBuilder().create()
+
+                val files = gson.fromJson(body, Info::class.java)
+                println("hej")
+                println(files.state.text)
+                println(files.temperature.bed.actual)
+
+                async(CommonPool)
+                {
+                    state.text = files.state.text
+                    bt.text = files.temperature.bed.actual.toString()
+                    nt.text = files.temperature.tool0.actual.toString()
+
+                }
+            }
+
+
+        })
+    }
+
     override fun onFragmentInteraction(uri: Uri) {
     }
 
@@ -215,6 +271,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun gettinfo(): timelapse_info {
         return tinfo
     }
+
+
+    class Info(val state: text, val temperature: Temperature )
+
+    class text(val text: String)
+    class Temperature(val bed: Bed, val tool0: Tool0)
+    class Bed(val actual: Double, val offset:Int, val target: Int)
+    class Tool0(val actual: Double, val offset:Int, val target: Int)
 
 
 }
