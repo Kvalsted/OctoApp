@@ -14,11 +14,12 @@
         android:id="@+id/textin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:layout_marginTop="12dp"
-        android:imeOptions="actionDone"
+        android:layout_marginBottom="12dp"
+        android:imeOptions="actionSend"
+        android:singleLine="true"
         android:textSize="20dp"
-        app:layout_constraintEnd_toStartOf="@+id/send"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrolly" />
 
@@ -27,7 +28,8 @@
         android:id="@+id/scrolly"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/send"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/textin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -42,16 +44,5 @@
         </LinearLayout>
 
     </ScrollView>
-
-    <Button
-        android:id="@+id/send"
-        android:layout_width="66dp"
-        android:layout_height="63dp"
-        android:layout_marginBottom="9dp"
-        android:text="Send"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textin"
-        app:layout_constraintTop_toBottomOf="@+id/scrolly" />
 
 </android.support.constraint.ConstraintLayout>
