@@ -234,7 +234,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         client.newCall(request).enqueue(object : Callback
         {
             override fun onFailure(call: Call?, e: IOException?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                println("lol")
             }
 
             override fun onResponse(call: Call?, response: Response?)
