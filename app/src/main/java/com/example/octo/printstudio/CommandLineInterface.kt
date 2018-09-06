@@ -4,13 +4,9 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ScrollView
 import android.widget.TextView
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_command_line_interface.*
@@ -23,10 +19,9 @@ import org.jetbrains.anko.coroutines.experimental.bg
 import java.io.IOException
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView.OnEditorActionListener
-import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.experimental.CommonPool
-import java.security.Key
-import okhttp3.FormBody
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 
 
 
@@ -66,22 +61,12 @@ class CommandLineInterface : Fragment() {
     private inner class EchoWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            /*webSocket.send("Hello, it's SSaurel !")
-            webSocket.send("What's up ?")
-            webSocket.send(ByteString.decodeHex("deadbeef"))
-
-            webSocket.close(1000, "Goodbye !")
-        */
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
-            //println("Receiving : " + text!!)
-
-
                 if (text!!.startsWith("{\"current\":") and run) {
 
                     println(text.toString())
-                    //println("hej")
                     val gson = GsonBuilder().create()
                     val files = gson.fromJson(text.toString(), Current::class.java)
 
@@ -99,8 +84,6 @@ class CommandLineInterface : Fragment() {
 
                         }
                     }
-                    /*
-                */
                 }
 
 
@@ -113,7 +96,6 @@ class CommandLineInterface : Fragment() {
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
-            //webSocket.close(1000, null)
             println("Closing : $code / $reason")
         }
 
@@ -130,51 +112,60 @@ class CommandLineInterface : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        run = true
-        val v = inflater.inflate(R.layout.fragment_command_line_interface, container, false)
+    fun sendGCode() {
+        var client = OkHttpClient()
+        var inc_cmd = activity.textin.getText().toString()
+        val url: String = "http://80.210.72.202:63500/api/printer/command"
+        async(UI) {
 
-        //Send GCode command
-        v.send.setOnClickListener {
-            var client = OkHttpClient()
-            var inc_cmd = v.textin.text
-            val url: String = "http://80.210.72.202:63500/api/printer/command"
-            async(UI) {
+            bg {
 
-                bg {
-
-                    val json = """
+                val json = """
                 {
                     "command":"${inc_cmd.toString().toUpperCase()}"
                 }
                 """.trimIndent()
 
-                    val body = RequestBody.create(MediaType.parse("application/json"), json)
-                    val request = Request.Builder()
-                            .url(url)
-                            .addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502")
-                            .addHeader("Content-Type", "application/json")
-                            .post(body)
-                            .build()
+                val body = RequestBody.create(MediaType.parse("application/json"), json)
+                val request = Request.Builder()
+                        .url(url)
+                        .addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502")
+                        .addHeader("Content-Type", "application/json")
+                        .post(body)
+                        .build()
 
 
-                    client.newCall(request).enqueue(object : Callback {
-                        override fun onFailure(call: Call?, e: IOException?) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                        }
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call?, e: IOException?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
 
-                        override fun onResponse(call: Call?, response: Response?) {
+                    override fun onResponse(call: Call?, response: Response?) {
 
-                            println("Response: ${response}")
-                            println("JSON: ${json}")
-                        }
-                    })
-                }
+                        println("Response: ${response}")
+                        println("JSON: ${json}")
+                    }
+                })
             }
         }
+    }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        // Inflate the layout for this fragment
+        run = true
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val v = inflater.inflate(R.layout.fragment_command_line_interface, container, false)
+
+        //Send GCode command
+        v.textin.setOnEditorActionListener(OnEditorActionListener { textView, keyCode, keyEvent ->
+            if (keyCode == EditorInfo.IME_ACTION_SEND) {
+                imm.hideSoftInputFromWindow(getView()!!.getWindowToken(), 0)
+                sendGCode()
+                v.textin.text.clear()
+                true
+            } else  false
+        })
 
         if(thread_running == false) {
             client = OkHttpClient()
@@ -189,7 +180,6 @@ class CommandLineInterface : Fragment() {
 
         return v
     }
-
 
 
     // TODO: Rename method, update argument and hook method into UI event
