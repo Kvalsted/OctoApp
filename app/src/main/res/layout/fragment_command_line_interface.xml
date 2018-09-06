@@ -21,6 +21,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+
         app:layout_constraintTop_toBottomOf="@+id/scrolly" />
 
 
@@ -38,8 +39,10 @@
             android:id="@+id/ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/ltgray"
+            android:layout_gravity="bottom"
+            android:background="@color/fragdrop"
             android:orientation="vertical">
+
 
         </LinearLayout>
 

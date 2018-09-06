@@ -23,6 +23,7 @@
         </activity>
         <activity
             android:name=".Stream"
+            android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Timelapsplayer"
             android:screenOrientation="landscape"

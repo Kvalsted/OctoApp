@@ -1,6 +1,7 @@
 package com.example.octo.printstudio
 
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -22,8 +23,7 @@ import android.widget.TextView.OnEditorActionListener
 import kotlinx.coroutines.experimental.CommonPool
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-
-
+import org.jetbrains.anko.backgroundColor
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -76,7 +76,10 @@ class CommandLineInterface : Fragment() {
                             activity.runOnUiThread {
                                 for (t in files.current.logs) {
                                     val tv: TextView = TextView(activity)
+                                    tv.setTextColor(Color.YELLOW)
+                                    tv.textSize = 24.00f
                                     tv.text = t
+                                    println("backy")
                                     activity.scrolly.ll.addView(tv)
                                     activity.scrolly.post(Runnable { activity.scrolly.fullScroll(View.FOCUS_DOWN) })
                                 }
@@ -100,7 +103,8 @@ class CommandLineInterface : Fragment() {
         }
 
         override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) {
-            super.onFailure(webSocket, t, response)
+            //super.onFailure(webSocket, t, response)
+            println("failed to open socket")
         }
     }
 
@@ -168,14 +172,22 @@ class CommandLineInterface : Fragment() {
         })
 
         if(thread_running == false) {
-            client = OkHttpClient()
-            val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
-            val listener = EchoWebSocketListener()
+            println("Creating listener")
+            async(UI){
 
-            client!!.retryOnConnectionFailure()
-            val ws = client!!.newWebSocket(request2, listener)
-            client!!.dispatcher().executorService().shutdown();
-            thread_running = true
+            bg {
+                activity.runOnUiThread {
+                    client = OkHttpClient()
+                    val request2 = Request.Builder().url("http://80.210.72.202:63500/sockjs/websocket").build()
+                    val listener = EchoWebSocketListener()
+
+                    client!!.retryOnConnectionFailure()
+                    val ws = client!!.newWebSocket(request2, listener)
+                    //client!!.dispatcher().executorService().shutdown();
+                    thread_running = true
+                }
+            }
+            }
         }
 
         return v
@@ -204,7 +216,6 @@ class CommandLineInterface : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         println("Terminating")
-        thread_running = false
     }
 
     /**
