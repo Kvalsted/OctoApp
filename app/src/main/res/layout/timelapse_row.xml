@@ -9,32 +9,48 @@
 
     <TextView
         android:id="@+id/timelapse_textview"
-        android:layout_width="0dp"
-        android:layout_height="37dp"
-        android:layout_marginBottom="7dp"
-        android:layout_marginEnd="22dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="7dp"
+        android:layout_width="313dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:singleLine="true"
         android:text="Example.gcode"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tlbt"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/filesize"
+        android:layout_width="314dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:singleLine="true"
+        android:text="File Size"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timelapse_textview" />
+
+    <TextView
+        android:id="@+id/added"
+        android:layout_width="314dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:singleLine="true"
+        android:text="Added:"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filesize" />
+
     <ImageButton
         android:id="@+id/tlbt"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginEnd="17dp"
-        android:layout_marginTop="5dp"
+        android:layout_width="75dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="320dp"
         android:background="?attr/selectableItemBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tvtl"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_video_library_black_24dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/cust"
+        tools:layout_editor_absoluteY="2dp" />
 
 </android.support.constraint.ConstraintLayout>

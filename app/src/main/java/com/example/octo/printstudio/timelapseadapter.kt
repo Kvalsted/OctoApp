@@ -27,12 +27,14 @@ class TimelapseAdapter(var files: tfiles): RecyclerView.Adapter<TimelapseViewHol
         else
         {
             if (holder != null) {
-                holder.view.setBackgroundColor(Color.GRAY)
+                holder.view.setBackgroundColor(Color.WHITE)
             }
         }
 
         if (holder != null) {
             holder.view.timelapse_textview.text = file.name
+            holder.view.filesize.text = "Size: ${file.size}"
+            holder.view.added.text = "Added: ${file.date}"
         }
     }
     override fun getItemCount(): Int {

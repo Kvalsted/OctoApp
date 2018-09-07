@@ -1,9 +1,11 @@
 package com.example.octo.printstudio
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -28,6 +30,7 @@ import okhttp3.WebSocketListener
 import okhttp3.OkHttpClient
 import android.widget.TextView
 import android.system.Os.shutdown
+import android.view.View
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
@@ -91,7 +94,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         rview.layoutManager = LinearLayoutManager(this)
 
         var url : String = "http://80.210.72.202:63500/api/files"
-
+        printprog.visibility = View.GONE
+        printprogtext.visibility = View.GONE
+        pause_btn.visibility = View.GONE
+        stop.visibility = View.GONE
 
 
         val request = Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
@@ -114,7 +120,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 runOnUiThread {
 
-                rview.adapter = MainAdapter(files)}
+                    rview.adapter = MainAdapter(files)}
 
             }
 
@@ -287,8 +293,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    @SuppressLint("SetTextI18n")
     fun getprinterstate()
     {
+        var perc = "%%"
+        var prog: Double = 35.6
+        var inpr: String = "Printing Progress: $prog Percent"
+        printprogtext.text = inpr
 
         var url : String = "http://80.210.72.202:63500/api/printer"
 
@@ -305,8 +316,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call?, response: Response?) {
                 val body = response?.body()?.string()
 
-
+                println(body)
                 val gson = GsonBuilder().create()
+
 
                 try {
                     val files = gson.fromJson(body, Info::class.java)
@@ -320,15 +332,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         bt.text = files.temperature.bed.actual.toString().slice(IntRange(0,3))
                         nt.text = files.temperature.tool0.actual.toString().slice(IntRange(0,3))
 
-                        if(files.state.text == "Paused")
+                        if(files.state.text == "Printing")
                         {
 
-                            val draw = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_arrow_black_24dp, null)
-                            if(pause_btn.drawable != draw) {
-                                pause_btn.setImageDrawable(draw)
+                            runOnUiThread {
+                                printprog.visibility = View.VISIBLE
+                                printprogtext.visibility = View.VISIBLE
+                                pause_btn.visibility = View.VISIBLE
+                                stop.visibility = View.VISIBLE
+
                             }
+                            println("Getting Job State")
+                            getprintjobstate(files)
                         }
 
+                        else if(files.state.text == "Paused")
+                        {
+                            val draw = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_arrow_black_24dp, null)
+                                pause_btn.setImageDrawable(draw)
+                        }
                     }
                 }
 
@@ -339,6 +361,54 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         })
+    }
+
+    fun getprintjobstate(info: Info)
+    {
+
+        var url : String = "http://80.210.72.202:63500/api/job"
+
+        val request = Request.Builder().addHeader("X-Api-Key", "F7A30A84F18E436DB4E96C338B807502").url(url).build()
+        var client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback
+        {
+            override fun onFailure(call: Call?, e: IOException?) {
+                println("lol")
+            }
+
+            override fun onResponse(call: Call?, response: Response?) {
+                val body = response?.body()?.string()
+
+                println(response)
+                val gson = GsonBuilder().create()
+
+                try {
+                    val files = gson.fromJson(body, Progress::class.java)
+                    println("timeleft ${files.progress.printTimeLeft}")
+                    println("estimated print time: ${files.estimatedPrintTime}")
+                    println("printtime: ${files.progress.printTime}")
+                    println("completion: ${files.progress.completion}")
+
+
+                    printprog.progress = files.progress.completion.toInt()
+                    printprogtext.text = "Printing Progress: ${files.progress.completion.toString()}"
+                    bt.text = "${info.temperature.bed.actual.toString().slice(IntRange(0,3))} / ${info.temperature.bed.target}"
+                    nt.text = "${info.temperature.tool0.actual.toString().slice(IntRange(0,3))} / ${info.temperature.tool0.target}"
+
+
+
+                    }
+
+
+
+                catch(e: IllegalStateException) {
+
+                }
+            }
+
+
+        })
+
     }
 
     override fun onFragmentInteraction(uri: Uri) {
@@ -358,6 +428,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     class Temperature(val bed: Bed, val tool0: Tool0)
     class Bed(val actual: Double, val offset:Int, val target: Int)
     class Tool0(val actual: Double, val offset:Int, val target: Int)
+
+
+    class Progress(val progress: Pgress, val estimatedPrintTime: Int)
+    class Pgress(val completion: Double, val printTime: Int, val printTimeLeft: Int)
+
 
 
 }

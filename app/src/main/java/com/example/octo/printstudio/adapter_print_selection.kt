@@ -35,7 +35,7 @@ class MainAdapter(val files: Files): RecyclerView.Adapter<CustomViewHolder>()
         }
         else
         {
-            holder.view.setBackgroundColor(Color.GRAY)
+            holder.view.setBackgroundColor(Color.WHITE)
         }
     }
 

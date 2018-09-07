@@ -23,6 +23,7 @@ import android.widget.TextView.OnEditorActionListener
 import kotlinx.coroutines.experimental.CommonPool
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import com.example.octo.printstudio.R.attr.colorAccent
 import org.jetbrains.anko.backgroundColor
 
 
@@ -76,7 +77,7 @@ class CommandLineInterface : Fragment() {
                             activity.runOnUiThread {
                                 for (t in files.current.logs) {
                                     val tv: TextView = TextView(activity)
-                                    tv.setTextColor(Color.YELLOW)
+                                    tv.setTextColor(Color.parseColor("#4089ff"))
                                     tv.textSize = 24.00f
                                     tv.text = t
                                     println("backy")
